@@ -5,17 +5,20 @@ import akka.actor.typed.javadsl.Adapter;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.cluster.sharding.typed.javadsl.ClusterSharding;
 import akka.cluster.sharding.typed.javadsl.EntityRef;
-import akka.contrib.persistence.mongodb.JavaDslMongoReadJournal;
-import akka.contrib.persistence.mongodb.MongoReadJournal;
+import akka.persistence.cassandra.query.javadsl.CassandraReadJournal;
+import akka.persistence.cassandra.testkit.CassandraLauncher;
 import akka.persistence.query.PersistenceQuery;
 import akka.persistence.query.javadsl.EventsByTagQuery;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import de.flapdoodle.embed.mongo.MongodExecutable;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.core.ConditionTimeoutException;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -28,7 +31,7 @@ import java.util.concurrent.Executors;
 import static org.awaitility.Awaitility.await;
 
 @Slf4j
-public class MyBehaviourMongoTest {
+public class MyBehaviourEmbeddedCassandraTest {
 
     private final int transactionCount = 10;
     private final int eventsPerTransaction = 10;
@@ -37,21 +40,28 @@ public class MyBehaviourMongoTest {
 
     private static Config config;
     private static ActorSystem system;
-    private static MongodExecutable mongodExecutable;
+
+    private final static File databaseDirectory = new File("target/cassandratest");
 
     @BeforeClass
     public static void setup() throws IOException {
-        config = ConfigFactory.load("mongo.conf");
+        config = ConfigFactory.load("cassandra.conf");
         system = ActorSystem.create(Behaviors.empty(), "Testing", config);
+        CassandraLauncher.start(
+                databaseDirectory,
+                CassandraLauncher.DefaultTestConfigResource(),
+                true,
+                9042, // default is 9042, but use different for test
+                CassandraLauncher.classpathForResources("logback-test.xml"));
     }
 
     @AfterClass
-    public static void tearDown() throws IOException {
+    public static void clean() {
         system.terminate();
+        CassandraLauncher.stop();
     }
 
     @Test
-    @Ignore
     public void testSendAndReceive() throws InterruptedException {
         Config config = ConfigFactory.load();
         List<MyBehaviour.Event> persistedEvents = Collections.synchronizedList(new ArrayList());
@@ -73,8 +83,7 @@ public class MyBehaviourMongoTest {
 
         log.debug("Successfully sent all the messages, now trying to retrieve them....");
 
-        EventsByTagQuery eventsByTagQuery = PersistenceQuery.get(Adapter.toClassic(system)).getReadJournalFor(JavaDslMongoReadJournal.class, MongoReadJournal.Identifier());
-
+        EventsByTagQuery eventsByTagQuery = PersistenceQuery.get(Adapter.toClassic(system)).getReadJournalFor(CassandraReadJournal.class, CassandraReadJournal.Identifier());
         // now try the read side.
         EventProcessorConfig settings = EventProcessorConfig.create(system);
         EventProcessor.init(

@@ -74,6 +74,7 @@ public class MyBehaviourEmbeddedMongoTest {
 
     @AfterClass
     public static void clean() {
+        system.terminate();
         mongodExecutable.stop();
     }
 

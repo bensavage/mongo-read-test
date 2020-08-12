@@ -14,10 +14,7 @@ import com.typesafe.config.ConfigFactory;
 import de.flapdoodle.embed.mongo.MongodExecutable;
 import lombok.extern.slf4j.Slf4j;
 import org.awaitility.core.ConditionTimeoutException;
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -76,6 +73,7 @@ public class MyBehaviourCassandraTest {
     }
 
     @Test
+    @Ignore
     public void testSendAndReceive() throws InterruptedException {
         Config config = ConfigFactory.load();
         List<MyBehaviour.Event> persistedEvents = Collections.synchronizedList(new ArrayList());
