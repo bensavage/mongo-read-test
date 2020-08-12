@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.mongodb.scala:mongo-scala-driver_2.13:2.9.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/scala/mongo-scala-driver_2.13/2.9.0/mongo-scala-driver_2.13-2.9.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/scala/mongo-scala-driver_2.13/2.9.0/mongo-scala-driver_2.13-2.9.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/mongodb/scala/mongo-scala-driver_2.13/2.9.0/mongo-scala-driver_2.13-2.9.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
